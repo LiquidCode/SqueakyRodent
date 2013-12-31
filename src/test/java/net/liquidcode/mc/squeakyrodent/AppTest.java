@@ -1,4 +1,4 @@
-package net.liquidcode.mc.SqueakyRodent;
+package net.liquidcode.mc.squeakyrodent;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
