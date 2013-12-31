@@ -1,0 +1,3 @@
+name: SqueakyRodent
+main: net.liquidcode.mc.squeakyrodent.SqueakyRodent
+version: 1.0-SNAPSHOT
