@@ -11,6 +11,7 @@ import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLevelChangeEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 public class ChatEventDecour implements Listener {
     @EventHandler
@@ -60,6 +61,22 @@ public class ChatEventDecour implements Listener {
     @EventHandler
     public void playerPortal(PlayerPortalEvent event) {
         Environment destination = event.getTo().getWorld().getEnvironment();
+        StringBuilder msg = new StringBuilder();
+        msg.append(ChatColor.DARK_GRAY);
+        msg.append(event.getPlayer().getDisplayName());
+        msg.append(" > ");
+        msg.append(ChatColor.GRAY);
+        msg.append(WordUtils.capitalizeFully(destination.toString()));
+        event.getPlayer().getServer().broadcastMessage(msg.toString());
+    }
+    
+    @EventHandler
+    public void playerTeleport(PlayerTeleportEvent event) {
+        Environment source = event.getFrom().getWorld().getEnvironment();
+        Environment destination = event.getTo().getWorld().getEnvironment();
+        if (source == destination) {
+            return;
+        }
         StringBuilder msg = new StringBuilder();
         msg.append(ChatColor.DARK_GRAY);
         msg.append(event.getPlayer().getDisplayName());
