@@ -3,7 +3,9 @@ package net.liquidcode.mc.squeakyrodent.chat;
 import org.apache.commons.lang.WordUtils;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.World.Environment;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -21,7 +23,7 @@ public class ChatEventDecour implements Listener {
     
     @EventHandler
     public void playerQuit(PlayerQuitEvent event) {
-        event.setQuitMessage(String.format(ChatColor.DARK_RED + " « " + ChatColor.DARK_GRAY+ "%s", event.getPlayer().getDisplayName()));
+        event.setQuitMessage(String.format(ChatColor.DARK_RED + " « " + ChatColor.DARK_GRAY+ "%s, %s", event.getPlayer().getDisplayName(), event.getQuitMessage()));
     }
     
     @EventHandler
@@ -60,14 +62,7 @@ public class ChatEventDecour implements Listener {
     
     @EventHandler
     public void playerPortal(PlayerPortalEvent event) {
-        Environment destination = event.getTo().getWorld().getEnvironment();
-        StringBuilder msg = new StringBuilder();
-        msg.append(ChatColor.DARK_GRAY);
-        msg.append(event.getPlayer().getDisplayName());
-        msg.append(" > ");
-        msg.append(ChatColor.GRAY);
-        msg.append(WordUtils.capitalizeFully(destination.toString()));
-        event.getPlayer().getServer().broadcastMessage(msg.toString());
+        worldChangeMessage(event.getPlayer(), event.getTo());
     }
     
     @EventHandler
@@ -77,12 +72,17 @@ public class ChatEventDecour implements Listener {
         if (source == destination) {
             return;
         }
+        worldChangeMessage(event.getPlayer(), event.getTo());
+    }
+    
+    private void worldChangeMessage(Player player, Location destination) {
         StringBuilder msg = new StringBuilder();
+        Environment env = destination.getWorld().getEnvironment();
         msg.append(ChatColor.DARK_GRAY);
-        msg.append(event.getPlayer().getDisplayName());
+        msg.append(player.getDisplayName());
         msg.append(" > ");
         msg.append(ChatColor.GRAY);
-        msg.append(WordUtils.capitalizeFully(destination.toString()));
-        event.getPlayer().getServer().broadcastMessage(msg.toString());
+        msg.append(WordUtils.capitalizeFully(env.toString()));
+        player.getServer().broadcastMessage(msg.toString());
     }
 }
