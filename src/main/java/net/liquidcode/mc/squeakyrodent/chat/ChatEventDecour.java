@@ -23,7 +23,11 @@ public class ChatEventDecour implements Listener {
     
     @EventHandler
     public void playerQuit(PlayerQuitEvent event) {
-        event.setQuitMessage(String.format(ChatColor.DARK_RED + " « " + ChatColor.DARK_GRAY+ "%s, %s", event.getPlayer().getDisplayName(), event.getQuitMessage()));
+        if (event.getQuitMessage().length() > 0 && !event.getQuitMessage().endsWith("left the game.")) {
+            event.setQuitMessage(String.format(ChatColor.DARK_RED + " « " + ChatColor.DARK_GRAY+ "%s, %s", event.getPlayer().getDisplayName(), event.getQuitMessage()));
+        } else {
+            event.setQuitMessage(String.format(ChatColor.DARK_RED + " « " + ChatColor.DARK_GRAY+ "%s", event.getPlayer().getDisplayName()));
+        }
     }
     
     @EventHandler
