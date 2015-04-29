@@ -3,6 +3,7 @@ package net.liquidcode.mc.squeakyrodent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import net.liquidcode.mc.squeakyrodent.chat.ChatEventDecour;
+import net.liquidcode.mc.squeakyrodent.features.WorldSaving;
 
 /**
  * Hello world!
@@ -10,6 +11,8 @@ import net.liquidcode.mc.squeakyrodent.chat.ChatEventDecour;
  */
 public class SqueakyRodent extends JavaPlugin
 {
+    private WorldSaving saveJob = new WorldSaving(this);
+    
     public static void main( String[] args )
     {
         System.out.println(
@@ -20,6 +23,7 @@ public class SqueakyRodent extends JavaPlugin
     @Override
     public void onEnable() {
         this.getServer().getPluginManager().registerEvents(new ChatEventDecour(), this);
+        saveJob.runTaskTimer(this, 15*60*20, 15*60*20);
     }
     
     @Override
