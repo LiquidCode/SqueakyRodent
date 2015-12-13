@@ -65,11 +65,6 @@ public class ChatEventDecour implements Listener {
     }
     
     @EventHandler
-    public void playerPortal(PlayerPortalEvent event) {
-        worldChangeMessage(event.getPlayer(), event.getTo());
-    }
-    
-    @EventHandler
     public void playerTeleport(PlayerTeleportEvent event) {
         Environment source = event.getFrom().getWorld().getEnvironment();
         Environment destination = event.getTo().getWorld().getEnvironment();
