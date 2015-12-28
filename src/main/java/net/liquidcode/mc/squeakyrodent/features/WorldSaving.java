@@ -22,12 +22,19 @@ public class WorldSaving extends BukkitRunnable {
 
     @Override
     public void run() {
-        this.plugin.getServer().broadcastMessage("Saving...");
+        announce("@a", "Saving...");
         this.plugin.getServer().savePlayers();
         for (World world : this.plugin.getServer().getWorlds()) {
             world.save();
         }
-        this.plugin.getServer().broadcastMessage("Saved!");
+        announce("@a", "Saved!");
     }
     
+    public void announce(String player, String message) {
+        String cmd = "title " + player + " ";
+        this.plugin.getServer().dispatchCommand(this.plugin.getServer().getConsoleSender(), cmd + "reset");
+        this.plugin.getServer().dispatchCommand(this.plugin.getServer().getConsoleSender(), cmd + "subtitle {text:\"" + message + "\"}");
+        this.plugin.getServer().dispatchCommand(this.plugin.getServer().getConsoleSender(), cmd + "times 0 20 20");
+        this.plugin.getServer().dispatchCommand(this.plugin.getServer().getConsoleSender(), cmd + "title {text:\"\"}");
+    }
 }
