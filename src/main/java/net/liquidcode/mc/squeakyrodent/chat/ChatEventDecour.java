@@ -1,6 +1,8 @@
 package net.liquidcode.mc.squeakyrodent.chat;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import net.gameshaft.temporals.uberchat.UberChat;
 import net.gameshaft.temporals.uberchat.chat.ChatChannel;
 import net.gameshaft.temporals.uberchat.chat.LocalChatChannel;
@@ -106,17 +108,10 @@ public class ChatEventDecour implements Listener {
         String deathMessage = event.getDeathMessage();
         event.setDeathMessage("");
         
-        ArrayList<ChatChannel> channels = new ArrayList<ChatChannel>();
-        
-        for (ChatChannel channel : UberChat.plugin.getState().getChannels()) {
-            if (channel instanceof LocalChatChannel)
-                channels.add(channel);
-            
-            if (channel instanceof TeamChatChannel)
-                channels.add(channel);
-        }
-        
-        UberChat.plugin.getState().sendRawMessage(event.getEntity(), deathMessage, channels);
+        HashMap<String, String> fields = new HashMap<>();
+        fields.put("message", deathMessage);
+
+        UberChat.plugin.getMessageBroker().sendFromPlayer(event.getEntity(), "deaths", fields);
     }
 
     private void sendLocal(String msg, Player player) {
