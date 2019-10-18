@@ -1,5 +1,11 @@
 package net.liquidcode.mc.squeakyrodent.chat;
 
+import java.util.ArrayList;
+import net.gameshaft.temporals.uberchat.UberChat;
+import net.gameshaft.temporals.uberchat.chat.ChatChannel;
+import net.gameshaft.temporals.uberchat.chat.LocalChatChannel;
+import net.gameshaft.temporals.uberchat.chat.TeamChatChannel;
+import net.liquidcode.mc.squeakyrodent.SqueakyRodent;
 import org.apache.commons.lang.WordUtils;
 
 import org.bukkit.ChatColor;
@@ -8,13 +14,21 @@ import org.bukkit.World.Environment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLevelChangeEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.plugin.Plugin;
 
 public class ChatEventDecour implements Listener {
+    private final SqueakyRodent plugin;
+
+    public ChatEventDecour(SqueakyRodent plugin) {
+        this.plugin = plugin;
+    }
+
     @EventHandler
     public void playerJoin(PlayerJoinEvent event) {
         event.setJoinMessage(String.format(ChatColor.DARK_GREEN + " » " + ChatColor.DARK_GRAY+ "%s", event.getPlayer().getDisplayName()));
@@ -22,7 +36,7 @@ public class ChatEventDecour implements Listener {
     
     @EventHandler
     public void playerQuit(PlayerQuitEvent event) {
-        if (event.getQuitMessage().length() > 0 && !event.getQuitMessage().endsWith("left the game.")) {
+        if (event.getQuitMessage().length() > 0 && !event.getQuitMessage().endsWith("left the game")) {
             event.setQuitMessage(String.format(ChatColor.DARK_RED + " « " + ChatColor.DARK_GRAY+ "%s, %s", event.getPlayer().getDisplayName(), event.getQuitMessage()));
         } else {
             event.setQuitMessage(String.format(ChatColor.DARK_RED + " « " + ChatColor.DARK_GRAY+ "%s", event.getPlayer().getDisplayName()));
@@ -60,7 +74,8 @@ public class ChatEventDecour implements Listener {
         message.append(" -> ");
         message.append(ChatColor.GREEN);
         message.append(event.getPlayer().getLevel());
-        event.getPlayer().getServer().broadcastMessage(message.toString());
+
+        sendLocal(message.toString(), event.getPlayer());
     }
     
     @EventHandler
@@ -70,6 +85,7 @@ public class ChatEventDecour implements Listener {
         if (source == destination) {
             return;
         }
+
         worldChangeMessage(event.getPlayer(), event.getTo());
     }
     
@@ -81,6 +97,39 @@ public class ChatEventDecour implements Listener {
         msg.append(" > ");
         msg.append(ChatColor.GRAY);
         msg.append(WordUtils.capitalizeFully(env.toString()));
+
         player.getServer().broadcastMessage(msg.toString());
+    }
+    
+    @EventHandler
+    public void playerDeathEvent(PlayerDeathEvent event) {
+        String deathMessage = event.getDeathMessage();
+        event.setDeathMessage("");
+        
+        ArrayList<ChatChannel> channels = new ArrayList<ChatChannel>();
+        
+        for (ChatChannel channel : UberChat.plugin.getState().getChannels()) {
+            if (channel instanceof LocalChatChannel)
+                channels.add(channel);
+            
+            if (channel instanceof TeamChatChannel)
+                channels.add(channel);
+        }
+        
+        UberChat.plugin.getState().sendRawMessage(event.getEntity(), deathMessage, channels);
+    }
+
+    private void sendLocal(String msg, Player player) {
+        if (plugin.getChat() == null) {
+            plugin.getServer().broadcastMessage(msg);
+            return;
+        }
+
+        for (ChatChannel channel : plugin.getChat().getState().getChannels())
+            if (channel instanceof LocalChatChannel)
+                for (Player recipient : channel.getRecipients(player))
+                    plugin.getLogger().info(recipient.toString());
+        
+        player.sendMessage(msg);
     }
 }
