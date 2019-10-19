@@ -32,6 +32,10 @@ public class SqueakyRodent extends JavaPlugin
         Plugin uberChat = this.getServer().getPluginManager().getPlugin("UberChat");
         if (uberChat != null) {
             this.chat = (UberChat) uberChat;
+
+            this.chat.getMessageBroker().registerMessageType("leveling", true, " §2{levelSignPlus}§a{levelChangePlus}§4{levelSignMinus}§c{levelChangeMinus} §8{displayName} -> §a{level}");
+            this.chat.getMessageBroker().registerMessageType("deaths", true, "{message}");
+
             this.getLogger().info("Detected UberChat, will broadcast based on chat channels");
         }
     }

@@ -1,6 +1,7 @@
 package net.liquidcode.mc.squeakyrodent.chat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import net.gameshaft.temporals.uberchat.UberChat;
@@ -57,29 +58,39 @@ public class ChatEventDecour implements Listener {
     @EventHandler
     public void playerLevelChange(PlayerLevelChangeEvent event) {
         int levelDiff = event.getNewLevel() - event.getOldLevel();
-        StringBuilder message = new StringBuilder();
-        if (levelDiff >= 0) {
-            message.append(ChatColor.DARK_GREEN);
-            message.append(" +");
-            message.append(ChatColor.GREEN);
-        } else {
-            message.append(ChatColor.DARK_RED);
-            message.append(" -");
-            message.append(ChatColor.RED);
-        }
-        if (Math.abs(levelDiff) > 1) {
-            message.append(Math.abs(levelDiff));
-        }
-        message.append(ChatColor.DARK_GRAY);
-        message.append(" ");
-        message.append(event.getPlayer().getDisplayName());
-        message.append(" -> ");
-        message.append(ChatColor.GREEN);
-        message.append(event.getPlayer().getLevel());
+        int changeThreshold = 2;
 
-        sendLocal(message.toString(), event.getPlayer());
+        HashMap<String, String> params = new HashMap<>();
+        // Get the essentials
+        params.put("level", String.format("%d", event.getNewLevel()));
+        params.put("levelDiff", String.format("%d", levelDiff));
+        // Then some more for styling opportunities
+        params.put("oldLevel", String.format("%d", event.getOldLevel()));
+        params.put("levelChange", String.format("%d", Math.abs(levelDiff)));
+
+
+        params.put("levelChangePlus", "");
+        params.put("levelChangeMinus", "");
+        params.put("levelSignPlus", "");
+        params.put("levelSignMinus", "");
+
+        if (levelDiff >= 0) {
+            params.put("levelSign", "+");
+            // Then for higher styling flexibility
+            params.put("levelSignPlus", "+");
+            if (levelDiff >= changeThreshold)
+                params.put("levelChangePlus", String.format("%d", Math.abs(levelDiff)));
+        } else {
+            params.put("levelSign", "-");
+            // Then for higher styling flexibility
+            params.put("levelSignMinus", "-");
+            if (levelDiff >= changeThreshold)
+                params.put("levelChangeMinus", String.format("%d", Math.abs(levelDiff)));
+        }
+
+        plugin.getChat().getMessageBroker().sendFromPlayer(event.getPlayer(), "leveling", params);
     }
-    
+
     @EventHandler
     public void playerTeleport(PlayerTeleportEvent event) {
         Environment source = event.getFrom().getWorld().getEnvironment();
@@ -110,21 +121,14 @@ public class ChatEventDecour implements Listener {
         
         HashMap<String, String> fields = new HashMap<>();
         fields.put("message", deathMessage);
+        fields.put("namelessMessage", deathMessage);
 
-        UberChat.plugin.getMessageBroker().sendFromPlayer(event.getEntity(), "deaths", fields);
-    }
-
-    private void sendLocal(String msg, Player player) {
-        if (plugin.getChat() == null) {
-            plugin.getServer().broadcastMessage(msg);
-            return;
+        // Strip player name if present
+        if (deathMessage.startsWith(event.getEntity().getName())) {
+            String[] words = deathMessage.split(" ");
+            fields.put("namelessMessage", String.join(" ", Arrays.copyOfRange(words, 1, words.length - 1)));
         }
 
-        for (ChatChannel channel : plugin.getChat().getState().getChannels())
-            if (channel instanceof LocalChatChannel)
-                for (Player recipient : channel.getRecipients(player))
-                    plugin.getLogger().info(recipient.toString());
-        
-        player.sendMessage(msg);
+        UberChat.plugin.getMessageBroker().sendFromPlayer(event.getEntity(), "deaths", fields);
     }
 }
